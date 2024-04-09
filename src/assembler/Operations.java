@@ -32,7 +32,7 @@ public class Operations {
     {
         String a=stack.pop();
         String b=stack.pop();
-        stack.push(String.valueOf((Integer.parseInt(a)+Integer.parseInt(b))));
+        stack.push(String.valueOf((Integer.parseInt(a)*Integer.parseInt(b))));
     }
 
     public static void div()

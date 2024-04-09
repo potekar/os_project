@@ -37,6 +37,14 @@ public class AsmHandler {
                 Operations.sub();
                 break;
 
+            case "MUL":
+                Operations.mul();
+                break;
+
+            case "DIV":
+                Operations.div();
+                break;
+
             case "PUSH":
                 Operations.push(arr[1]);
                 break;
