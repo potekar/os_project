@@ -1,12 +1,19 @@
 package system;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class ShellCommands {
-    static Scanner sc=new Scanner(System.in);
-    static String currentDir=System.getProperty("user.dir");
+    private static Scanner sc=new Scanner(System.in);
+    private static String currentDir=System.getProperty("user.dir");
+
+    public static String getCurrentDir() {
+        return currentDir;
+    }
+
+    public static void setCurrentDir(String currentDir) {
+        ShellCommands.currentDir = currentDir;
+    }
 
     public static void getCommand()
     {
@@ -21,6 +28,7 @@ public class ShellCommands {
                 {
                     File parrent= new File(new File(currentDir).getParent());
                     currentDir=parrent.getAbsolutePath().toString();
+                    System.setProperty("user.dir",currentDir);
                     System.out.println(currentDir);
                 }
                 else {
@@ -44,7 +52,7 @@ public class ShellCommands {
                 break;
 
             case "mkdir":
-                //TODO makes new directory
+                makeDirectory(command[1]);
                 break;
 
             case "run":
@@ -52,11 +60,18 @@ public class ShellCommands {
                 break;
 
             case "exit":
-                //TODO system shutdown
+                exitProcedure();
                 break;
 
             case "rm":
-                //TODO removes a directory or a file
+                if(removeDirectory(command[1]))
+                {
+                    System.out.println("Directory has been removed successfully.");
+                }
+                else
+                {
+                    System.out.println("Directory hasn't been removed.");
+                }
                 break;
 
             case "mem":
@@ -105,8 +120,7 @@ public class ShellCommands {
         }
     }
 
-    private static boolean changeDirectory(String dirName)
-    {
+    private static boolean changeDirectory(String dirName) {
 
         File dir=new File(currentDir);
         File[] firstLevelFiles=dir.listFiles();
@@ -115,10 +129,47 @@ public class ShellCommands {
                 if (aFile.isDirectory() && aFile.getName().equals(dirName))
                 {
                     currentDir=aFile.getAbsolutePath().toString();
+                    System.setProperty("user.dir",currentDir);
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    private static boolean makeDirectory(String dirName) {
+        File dir=new File(currentDir+'\\'+dirName);
+        if(!dir.exists())
+        {
+            return dir.mkdir();
+        }
+        else
+        {
+            System.out.println("directory already exists.");
+        }
+        return false;
+    }
+
+    private static boolean removeDirectory(String dirName)
+    {
+        File dir=new File(currentDir+'\\'+dirName);
+        if(dir.exists())
+        {
+            Scanner s=new Scanner(System.in);
+            System.out.println("are you sure you want to remove "+dirName+ "[Y/N]");
+            if(s.next().equalsIgnoreCase("y"))
+            {
+                return dir.delete();
+            }
+        }
+        else
+        {
+            System.out.println("directory does not exist.");
+        }
+        return false;
+    }
+
+    private static void exitProcedure() {
+        System.exit(0);
     }
 }
