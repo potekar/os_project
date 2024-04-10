@@ -1,5 +1,8 @@
 package system;
 
+import memory.ProcessPetko;
+import memory.Ram;
+
 import java.io.File;
 import java.util.Scanner;
 
@@ -57,6 +60,7 @@ public class ShellCommands {
 
             case "run":
                 //TODO runs a process
+                ProcessPetko p = new ProcessPetko(command[1]);
                 break;
 
             case "exit":
@@ -76,6 +80,13 @@ public class ShellCommands {
 
             case "mem":
                 //TODO memory state
+                for(int i = 0; i< Ram.NumOfFrames; i++)
+                {
+                    if(Ram.frames[i] != 0)
+                    {
+                        System.out.println("Frame " + i+ " -> "+ Ram.memory.get(i));
+                    }
+                }
                 break;
 
             default:
