@@ -4,6 +4,7 @@ import memory.ProcessPetko;
 import memory.Ram;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class ShellCommands {
@@ -14,85 +15,92 @@ public class ShellCommands {
         return currentDir;
     }
 
+    public static HashSet<ProcessPetko> threadSet = new HashSet<>();
+
     public static void setCurrentDir(String currentDir) {
         ShellCommands.currentDir = currentDir;
     }
 
     public static void getCommand()
     {
-        System.out.print(">>");
-        String[] command=sc.nextLine().split(" ");
 
-        switch (command[0].toLowerCase())
-        {
-            case "cd":
+            System.out.print(">>");
+            String[] command = sc.nextLine().split(" ");
 
-                if(command[1].equals(".."))
-                {
-                    File parrent= new File(new File(currentDir).getParent());
-                    currentDir=parrent.getAbsolutePath().toString();
-                    System.setProperty("user.dir",currentDir);
-                    System.out.println(currentDir);
-                }
-                else {
-                    if(changeDirectory(command[1]))
+            switch (command[0].toLowerCase()) {
+                case "cd":
+
+                    if (command[1].equals("..")) {
+                        File parrent = new File(new File(currentDir).getParent());
+                        currentDir = parrent.getAbsolutePath().toString();
+                        System.setProperty("user.dir", currentDir);
                         System.out.println(currentDir);
-                    else
-                        System.out.println("The system cannot find the path specified.");
-                }
-                break;
-
-            case "dir", "ls":
-                listDirectory(currentDir);
-                break;
-
-            case "dirtree":
-                listDirectoryTree(new File(currentDir),"");
-                break;
-
-            case "ps":
-                //TODO lista procese i osnovne informacije o njima: trenutna mašinska instrukcija, potrošnja RAM-a, broj izvršenih instrukcija itd.
-                break;
-
-            case "mkdir":
-                makeDirectory(command[1]);
-                break;
-
-            case "run":
-                //TODO runs a process
-                ProcessPetko p = new ProcessPetko(command[1]);
-                break;
-
-            case "exit":
-                exitProcedure();
-                break;
-
-            case "rm":
-                if(removeDirectory(command[1]))
-                {
-                    System.out.println("Directory has been removed successfully.");
-                }
-                else
-                {
-                    System.out.println("Directory hasn't been removed.");
-                }
-                break;
-
-            case "mem":
-                //TODO memory state
-                for(int i = 0; i< Ram.NumOfFrames; i++)
-                {
-                    if(Ram.frames[i] != 0)
-                    {
-                        System.out.println("Frame " + i+ " -> "+ Ram.memory.get(i));
+                    } else {
+                        if (changeDirectory(command[1]))
+                            System.out.println(currentDir);
+                        else
+                            System.out.println("The system cannot find the path specified.");
                     }
-                }
-                break;
+                    break;
 
-            default:
-                System.out.println("'"+command[0]+"' is not recognized as an internal or external command.dir");;
+                case "dir", "ls":
+                    listDirectory(currentDir);
+                    break;
 
-        }
+                case "dirtree":
+                    listDirectoryTree(new File(currentDir), "");
+                    break;
+
+                case "ps":
+                    //TODO lista procese i osnovne informacije o njima: trenutna mašinska instrukcija, potrošnja RAM-a, broj izvršenih instrukcija itd.
+                    for(ProcessPetko t:threadSet)
+                    {
+                        System.out.println("Process name:" +t.getProcessName() +"; CurrentInstruciton: " + t.currentInstruction +
+                                "; Number of executed instructions:" + t.numExecutedInstructions + "; Usage of RAM:" + t.getNumOfPages() + " frames");
+                    }
+                    break;
+
+                case "mkdir":
+                    makeDirectory(command[1]);
+                    break;
+
+                case "run":
+                    //TODO runs a process
+                    ProcessPetko t = new ProcessPetko(command[1]);
+                    threadSet.add(t);
+                    t.start();
+                    break;
+
+                case "exit":
+                    exitProcedure();
+                    break;
+
+                case "rm":
+                    if (removeDirectory(command[1])) {
+                        System.out.println("Directory has been removed successfully.");
+                    } else {
+                        System.out.println("Directory hasn't been removed.");
+                    }
+                    break;
+
+                case "mem":
+                    //TODO memory state
+                    for (int i = 0; i < Ram.NumOfFrames; i++) {
+                        if (Ram.frames[i] == 1) {
+                            System.out.println("Frame " + i + " -> " + Ram.memory.get(i));
+                        }if(Ram.frames[i] == 3)
+                        {
+                            System.out.println("Frame " + i + "; value:" + Ram.memory.get(i).getValue());
+                        }
+                    }
+                    break;
+
+                default:
+                    System.out.println("'" + command[0] + "' is not recognized as an internal or external command.dir");
+                    ;
+
+            }
+
 
     }
 

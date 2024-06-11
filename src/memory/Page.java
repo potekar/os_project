@@ -12,6 +12,8 @@ public class Page {
     //private boolean occupied;
     private int PageNumber;
 
+    private int value;
+
 
     public Page(int PageNumber,String processName)
     {
@@ -19,6 +21,11 @@ public class Page {
         this.PageNumber = PageNumber;
         this.content = new ArrayList<>(SIZE);
         this.processName = processName;
+    }
+
+    public Page(int value)
+    {
+        this.value = value;
     }
 
     public ArrayList<String> getContent() {
@@ -31,6 +38,11 @@ public class Page {
 
     public String getProcessName() {
         return processName;
+    }
+
+    public int getValue()
+    {
+        return value;
     }
 
     @Override

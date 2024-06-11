@@ -8,10 +8,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
-public class ProcessPetko {
+public class ProcessPetko extends Thread{
 
     private Map<Integer,Integer> PageTable = new HashMap<>();
+
+    public  Stack <String> stack= new Stack<>();
 
     private int numOfPages;
 
@@ -19,11 +22,25 @@ public class ProcessPetko {
 
     private ArrayList<String> instructions = new ArrayList<>();
 
+    public String currentInstruction;
+    public int numExecutedInstructions = 0;
+
     public ProcessPetko(String filePath){
         this.processName = filePath;
+    }
 
+    public String getProcessName() {
+        return processName;
+    }
+
+    public int getNumOfPages() {
+        return numOfPages;
+    }
+
+    @Override
+    public void run() {
         try {
-            this.instructions = (ArrayList<String>) Files.readAllLines(Paths.get(filePath));
+            this.instructions = (ArrayList<String>) Files.readAllLines(Paths.get(this.processName));
         } catch (IOException e) {
             System.err.println("Error reading ASM file: " + e.getMessage());
         }
@@ -59,12 +76,31 @@ public class ProcessPetko {
 
         }
 
-        for(int i=0;i<numOfPages;i++)
+        /*for(int i=0;i<numOfPages;i++)
         {
             System.out.println("Page " + i+ " -> Frame "+PageTable.get(i));
-        }
-        AsmHandler.instructionReader(filePath);
+        }*/
+
+
+        AsmHandler.instructionReader(this);
+        /*for(int i=0;i<2;i++)
+        {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }*/
+
+       for(Integer i:PageTable.keySet())
+       {
+           Ram.frames[PageTable.get(i)] = 0;
+       }
+
+
     }
+
+
 
 
 }

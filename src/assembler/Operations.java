@@ -1,54 +1,63 @@
 package assembler;
 
+import memory.ProcessPetko;
+
 import java.util.Stack;
 
 public class Operations {
-    private static Stack <String> stack=new Stack<>();
 
-    public static void push(String val){
+
+    private  Stack <String> stack;
+
+    public Operations(ProcessPetko p)
+    {
+        this.stack = p.stack;
+    }
+
+    public  void push(String val){
         stack.push(val);
     }
 
-    public static String pop()
+    public  String pop()
     {
         return stack.pop();
     }
 
-    public static void add()
+    public  void add()
     {
         String a=stack.pop();
         String b=stack.pop();
         stack.push(String.valueOf((Integer.parseInt(a)+Integer.parseInt(b))));
     }
 
-    public static void sub()
+    public  void sub()
     {
         String a=stack.pop();
         String b=stack.pop();
         stack.push(String.valueOf((Integer.parseInt(a)-Integer.parseInt(b))));
     }
 
-    public static void mul()
+    public  void mul()
     {
         String a=stack.pop();
         String b=stack.pop();
         stack.push(String.valueOf((Integer.parseInt(a)*Integer.parseInt(b))));
     }
 
-    public static void div()
+    public  void div()
     {
         String a=stack.pop();
         String b=stack.pop();
-        stack.push(String.valueOf((Integer.parseInt(a)/Integer.parseInt(b))));
+        stack.push(String.valueOf((Integer.parseInt(b)/Integer.parseInt(a))));
     }
 
-    public static void inc()
+    public  void inc()
     {
         String a=stack.pop();
         stack.push(String.valueOf((Integer.parseInt(a)+1)));
     }
 
-    public static void dec()
+    public  void dec()
     {
         String a=stack.pop();
         stack.push(String.valueOf((Integer.parseInt(a)-1)));
