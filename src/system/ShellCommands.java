@@ -66,7 +66,22 @@ public class ShellCommands {
 
                 case "run":
                     //TODO runs a process
-                    ProcessPetko t = new ProcessPetko(command[1]);
+                    int id = 0;
+                    int max = 0;
+                    if(!threadSet.isEmpty())
+                    {
+                        for(ProcessPetko p:threadSet)
+                        {
+                            if(p.getProcessName().substring(0,command[1].length()).equalsIgnoreCase(command[1]))
+                            {
+                                String s = p.getProcessName().substring(command[1].length()+1,p.getProcessName().length()-1);
+                                int x = Integer.parseInt(s);
+                                if(x>=id)
+                                    id = x+1;
+                            }
+                        }
+                    }
+                    ProcessPetko t = new ProcessPetko(command[1],"("+id+")");
                     threadSet.add(t);
                     t.start();
                     break;

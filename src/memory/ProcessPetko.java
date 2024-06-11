@@ -20,17 +20,20 @@ public class ProcessPetko extends Thread{
 
     private String processName;
 
+    private String processName2;
+
     private ArrayList<String> instructions = new ArrayList<>();
 
     public String currentInstruction;
     public int numExecutedInstructions = 0;
 
-    public ProcessPetko(String filePath){
+    public ProcessPetko(String filePath,String id){
         this.processName = filePath;
+        this.processName2 = filePath+id;
     }
 
     public String getProcessName() {
-        return processName;
+        return processName2;
     }
 
     public int getNumOfPages() {
@@ -50,7 +53,7 @@ public class ProcessPetko extends Thread{
 
         for(int i=0;i<numOfPages;i++)
         {
-            Page p = new Page(i,processName);
+            Page p = new Page(i,processName2);
             int x = 0;
 
             while(x<Page.SIZE)
