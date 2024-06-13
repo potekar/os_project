@@ -11,6 +11,7 @@ import java.util.Scanner;
 public class ShellCommands {
     private static Scanner sc=new Scanner(System.in);
     private static String currentDir=System.getProperty("user.dir");
+    //private static String currentDir="src\\programs";
 
     public static String getCurrentDir() {
         return currentDir;
@@ -73,7 +74,7 @@ public class ShellCommands {
                     {
                         for(ProcessPetko p:threadSet)
                         {
-                            if(p.getProcessName().substring(0,(currentDir+"\\"+command[1]).length()).equalsIgnoreCase(command[1]))
+                            if(p.getProcessName().substring(0,command[1].length()).equalsIgnoreCase(command[1]))
                             {
                                 String s = p.getProcessName().substring(command[1].length()+1,p.getProcessName().length()-1);
                                 int x = Integer.parseInt(s);
@@ -82,7 +83,16 @@ public class ShellCommands {
                             }
                         }
                     }
-                    ProcessPetko t = new ProcessPetko(currentDir+"\\"+command[1],"("+id+")");
+                    String path;
+                    if(command[1].contains("\\") || command[1].contains("/"))
+                    {
+                        path=command[1];
+                    }
+                    else
+                    {
+                        path=currentDir+"\\"+command[1];
+                    }
+                    ProcessPetko t = new ProcessPetko(path,"("+id+")");
                     threadSet.add(t);
                     t.start();
                     break;

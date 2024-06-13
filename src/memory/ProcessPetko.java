@@ -1,6 +1,7 @@
 package memory;
 
 import assembler.AsmHandler;
+import system.ShellCommands;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +18,6 @@ public class ProcessPetko extends Thread{
     public  Stack <String> stack= new Stack<>();
 
     private int numOfPages;
-
     private String processName;
 
     private String processName2;
@@ -29,7 +29,14 @@ public class ProcessPetko extends Thread{
 
     public ProcessPetko(String filePath,String id){
         this.processName = filePath;
-        this.processName2 = filePath+id;
+        try{
+            this.processName2 = filePath.substring(ShellCommands.getCurrentDir().length()+1)+id;
+        }
+        catch (StringIndexOutOfBoundsException e)
+        {
+            this.processName2=filePath;
+        }
+
     }
 
     public String getProcessName() {
