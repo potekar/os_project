@@ -4,6 +4,7 @@ import memory.ProcessPetko;
 import memory.Ram;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -72,7 +73,7 @@ public class ShellCommands {
                     {
                         for(ProcessPetko p:threadSet)
                         {
-                            if(p.getProcessName().substring(0,command[1].length()).equalsIgnoreCase(command[1]))
+                            if(p.getProcessName().substring(0,(currentDir+"\\"+command[1]).length()).equalsIgnoreCase(command[1]))
                             {
                                 String s = p.getProcessName().substring(command[1].length()+1,p.getProcessName().length()-1);
                                 int x = Integer.parseInt(s);
@@ -81,7 +82,7 @@ public class ShellCommands {
                             }
                         }
                     }
-                    ProcessPetko t = new ProcessPetko(command[1],"("+id+")");
+                    ProcessPetko t = new ProcessPetko(currentDir+"\\"+command[1],"("+id+")");
                     threadSet.add(t);
                     t.start();
                     break;

@@ -43,7 +43,7 @@ public class AsmHandler {
             instructionRunner(line,proces,operations);
             proces.numExecutedInstructions +=1;
             try {
-                proces.sleep(7000);
+                proces.sleep(1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

@@ -64,7 +64,6 @@ public class ProcessPetko extends Thread{
                 br++;
             }
 
-
             for(int j = 0;j< Ram.NumOfFrames;j++)
             {
                 if(Ram.frames[j] == 0)
@@ -75,8 +74,6 @@ public class ProcessPetko extends Thread{
                     break;
                 }
             }
-
-
         }
 
         /*for(int i=0;i<numOfPages;i++)
@@ -99,11 +96,5 @@ public class ProcessPetko extends Thread{
        {
            Ram.frames[PageTable.get(i)] = 0;
        }
-
-
     }
-
-
-
-
 }
