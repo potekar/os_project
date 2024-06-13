@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class AsmHandler {
 
@@ -19,12 +20,6 @@ public class AsmHandler {
         List<String> asmFileLines = new ArrayList<>();
         Operations operations = new Operations(proces);
 
-        /*try {
-            asmFileLines = Files.readAllLines(Paths.get(filePath));
-        } catch (IOException e) {
-            System.err.println("Error reading ASM file: " + e.getMessage());
-            System.exit(1);
-        }*/
 
         for(int i=0;i<100;i++)
         {
@@ -39,15 +34,68 @@ public class AsmHandler {
             }
         }
 
-        for (String line : asmFileLines) {
-            instructionRunner(line,proces,operations);
-            proces.numExecutedInstructions +=1;
-            try {
-                proces.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        Random r = new Random();
+        instructionRunner(asmFileLines.get(0),proces,operations);
+        proces.numExecutedInstructions +=1;
+        long quantum = 4000;
+
+        for (int i=1;i<asmFileLines.size();i++) {
+
+            proces.waitForResume();
+
+               /* while (proces.isPaused()) {
+                    synchronized (proces) {
+                        try {
+                            proces.wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }*/
+
+            long x = r.nextInt(4001) + 2000 + proces.getRemainingSleepTime();
+            long y = proces.getRemainingSleepTime();
+            proces.setRemainingSleepTime(0);
+
+            if (x < quantum) {
+                quantum -= x;
+                proces.quantumCheck -= x;
+                try {
+                    proces.sleep(x);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+
+            } else if (x >quantum) {
+                proces.setRemainingSleepTime(x - quantum);
+                quantum = 4000;
+                try {
+                    proces.sleep(x-proces.getRemainingSleepTime());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                proces.quantumCheck = 0;
             }
+
+
+
+
+            instructionRunner(asmFileLines.get(i), proces, operations);
+            proces.numExecutedInstructions += 1;
+
+
         }
+
+        /*if(proces.getRemainingSleepTime()>0)
+        {
+            try {
+                proces.sleep(proces.getRemainingSleepTime());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }*/
+
+        proces.setFinished(true);
     }
 
     private static void instructionRunner(String instruction,ProcessPetko proces,Operations operations)

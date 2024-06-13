@@ -1,6 +1,7 @@
 package memory;
 
 import assembler.AsmHandler;
+import system.ProcessScheduler;
 import system.ShellCommands;
 
 import java.io.IOException;
@@ -26,6 +27,15 @@ public class ProcessPetko extends Thread{
 
     public String currentInstruction;
     public int numExecutedInstructions = 0;
+
+    private boolean isFinished = false;
+
+    public int indikator = 0;
+
+    public long quantumCheck = 4000;
+    private long remainingSleepTime = 0;
+    private final Object lock = new Object();
+    private boolean paused = false;
 
     public ProcessPetko(String filePath,String id){
         this.processName = filePath;
@@ -83,25 +93,71 @@ public class ProcessPetko extends Thread{
             }
         }
 
-        /*for(int i=0;i<numOfPages;i++)
-        {
-            System.out.println("Page " + i+ " -> Frame "+PageTable.get(i));
-        }*/
-
-
         AsmHandler.instructionReader(this);
-        /*for(int i=0;i<2;i++)
-        {
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }*/
 
-       for(Integer i:PageTable.keySet())
-       {
-           Ram.frames[PageTable.get(i)] = 0;
-       }
+        for(Integer i:PageTable.keySet())
+        {
+            Ram.frames[PageTable.get(i)] = 0;
+        }
+
+        if(isFinished) {
+            ShellCommands.threadSet.remove(this);
+            ProcessScheduler.red.remove(this);
+        }
+    }
+
+    public boolean isFinished() {
+        return isFinished;
+    }
+
+    public void setFinished(boolean finished) {
+        isFinished = finished;
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+
+    public void pauseProcess() {
+        synchronized (lock) {
+            paused = true;
+            quantumCheck = 4000;
+        }
+    }
+
+    public void resumeProcess() {
+        synchronized (lock) {
+            this.setPaused(false);
+            lock.notify();
+        }
+    }
+
+    public void waitForResume() {
+        synchronized (lock) {
+            while (paused) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+    public void setRemainingSleepTime(long remainingSleepTime) {
+        this.remainingSleepTime = remainingSleepTime;
+    }
+
+    public long getRemainingSleepTime() {
+        return remainingSleepTime;
+    }
+
+    @Override
+    public String toString() {
+        return processName2;
     }
 }

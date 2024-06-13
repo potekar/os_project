@@ -23,6 +23,8 @@ public class ShellCommands {
         ShellCommands.currentDir = currentDir;
     }
 
+    private static ProcessScheduler scheduler;
+
     public static void getCommand()
     {
 
@@ -69,7 +71,6 @@ public class ShellCommands {
                 case "run":
                     //TODO runs a process
                     int id = 0;
-                    int max = 0;
                     if(!threadSet.isEmpty())
                     {
                         for(ProcessPetko p:threadSet)
@@ -92,9 +93,22 @@ public class ShellCommands {
                     {
                         path=currentDir+"\\"+command[1];
                     }
-                    ProcessPetko t = new ProcessPetko(path,"("+id+")");
+
+
+                    ProcessPetko t = new ProcessPetko(command[1],"("+id+")");
                     threadSet.add(t);
-                    t.start();
+                    ProcessScheduler.red.add(t);
+
+                    if (scheduler == null || !scheduler.isAlive()) {
+                        scheduler = new ProcessScheduler();
+                        scheduler.start();
+                    }
+
+                    /*if(threadSet.size() == 1)
+                    {
+                        ProcessScheduler ps = new ProcessScheduler();
+                        ps.start();
+                    }*/
                     break;
 
                 case "exit":
