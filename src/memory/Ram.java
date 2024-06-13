@@ -9,10 +9,4 @@ public class Ram {
 
     public static int[] frames = new int[NumOfFrames];
     public static Map<Integer,Page> memory = new HashMap<>();
-
-
-
-
-
-
 }
