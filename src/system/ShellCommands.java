@@ -31,25 +31,32 @@ public class ShellCommands {
 
             switch (command[0].toLowerCase()) {
                 case "cd":
-
-                    if (command[1].equals("..")) {
-                        File parrent = new File(new File(currentDir).getParent());
-                        currentDir = parrent.getAbsolutePath().toString();
-                        System.setProperty("user.dir", currentDir);
-                        System.out.println(currentDir);
-                    } else {
-                        if (changeDirectory(command[1]))
+                    try {
+                        if (command[1].equals("..")) {
+                            File parrent = new File(new File(currentDir).getParent());
+                            currentDir = parrent.getAbsolutePath().toString();
+                            System.setProperty("user.dir", currentDir);
                             System.out.println(currentDir);
-                        else
-                            System.out.println("The system cannot find the path specified.");
+                        }
+                        else {
+                            if (changeDirectory(command[1]))
+                                System.out.println(currentDir);
+                            else
+                                System.out.println("The system cannot find the path specified.");
+                        }
                     }
+                    catch (ArrayIndexOutOfBoundsException e)
+                    {
+                        System.out.println(getCurrentDir());
+                    }
+
                     break;
 
                 case "dir", "ls":
                     listDirectory(currentDir);
                     break;
 
-                case "dirtree":
+                case "tree":
                     listDirectoryTree(new File(currentDir), "");
                     break;
 
@@ -62,7 +69,7 @@ public class ShellCommands {
                     }
                     break;
 
-                case "mkdir":
+                case "mkdir","md":
                     makeDirectory(command[1]);
                     break;
 
@@ -97,11 +104,11 @@ public class ShellCommands {
                     t.start();
                     break;
 
-                case "exit":
+                case "shutdown":
                     exitProcedure();
                     break;
 
-                case "rm":
+                case "rmdir","rd":
                     if (removeDirectory(command[1])) {
                         System.out.println("Directory has been removed successfully.");
                     } else {
@@ -121,9 +128,26 @@ public class ShellCommands {
                     }
                     break;
 
+                case "block":
+                    //TODO treba da blokora proces
+                    break;
+
+                case "unblock":
+                    //TODO treba da deblokira proces
+                    break;
+
+                case "help":
+                    try {
+                        helpProcedure(command[1]);
+                    }
+                    catch (IndexOutOfBoundsException e)
+                    {
+                        helpProcedure();
+                    }
+                    break;
+
                 default:
-                    System.out.println("'" + command[0] + "' is not recognized as an internal or external command.dir");
-                    ;
+                    System.out.println("'" + command[0] + "' is not recognized as an internal or external command");
 
             }
 
@@ -213,8 +237,87 @@ public class ShellCommands {
         }
         return false;
     }
-
     private static void exitProcedure() {
         System.exit(0);
+    }
+
+    private static void helpProcedure(String command) {
+        switch (command){
+            case "cd":
+                System.out.println("Displays the name of or changes the current directory \n" +
+                        "CD <directory>\n" +
+                        "CD <..>\n" +
+                        "  ..   Specifies that you want to change to the parent directory.\n" +
+                        "\n" +
+                        "Type CD without parameters to display the current drive and directory.");
+                break;
+
+            case "dir","ls":
+                System.out.println("Displays a list of files and subdirectories in a directory.");break;
+
+            case "tree":
+                System.out.println("Graphically displays the folder structure of a drive or path.");break;
+
+            case "ps":
+                System.out.println("Lists current processes and their state.\n" +
+                        "[Process name] [CurrentInstruciton] [Number of executed instructions] [Usage of RAM]");break;
+
+            case "mkdir","md":
+                System.out.println("Creates a directory.\n" +
+                        "\n" +
+                        "MKDIR <directory name>\n" +
+                        "MD <directory name>");
+                break;
+
+            case "rmdir","rd":
+                System.out.println("Removes (deletes) a directory.\n\n" +
+                        "RMDIR <directory name>\n" +
+                        "RD <directory name>");
+                break;
+
+            case "mem":
+                System.out.println("Shows current memory usage.\n" +
+                        "[Frame] [Process name] [Page] [Page content] -> process memory usage\n" +
+                        "[Frame] [Value] -> shared memory");
+                break;
+
+            case "shutdown":
+                System.out.println("Allows proper local shutdown of machine.");break;
+
+            case "run":
+                System.out.println("Starts a process.\n" +
+                        "RUN <process name in current direcory>\n" +
+                        "RUN <relative/absolute process path>");
+                break;
+
+            case "help":
+                System.out.println("Provides help information for commands.\n" +
+                        "\n" +
+                        "HELP [command]\n" +
+                        "\n" +
+                        "    command - displays help information on that command.");
+                break;
+
+            default:
+                System.out.println("'" + command + "' is not recognized as an internal or external command");
+        }
+    } //TODO dodati ostale komande
+
+    private static void helpProcedure()
+    {
+        System.out.println("For more information on a specific command, type HELP <command-name>\n" +
+                "CD             Displays the name of or changes the current directory.\n" +
+                "DIR            Displays a list of files and subdirectories in a directory.\n" +
+                "TREE           Graphically displays the directory structure of a drive or path.\n" +
+                "PS             Lists current processes and their state.\n" +
+                "MKDIR          Creates a directory.\n" +
+                "RMDIR          Removes a directory.\n" +
+                "MEM            Shows current memory usage.\n" +
+                "SHUTDOWN       Allows proper local shutdown of machine.\n" +
+                "RUN            Starts a process.\n" +
+                "HELP           Provides Help information for commands.\n" +
+                "BLOCK          Blocks a process.\n" +
+                "UNBLOCK        Unblocks a process\n" +
+                "LS             Displays a list of files and subdirectories in a directory.");
     }
 }
