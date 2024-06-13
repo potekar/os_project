@@ -44,7 +44,7 @@ public class ProcessPetko extends Thread{
         }
         catch (StringIndexOutOfBoundsException e)
         {
-            this.processName2=filePath;
+            this.processName2=filePath+id;
         }
 
     }
@@ -156,8 +156,8 @@ public class ProcessPetko extends Thread{
         return remainingSleepTime;
     }
 
-    @Override
+   /* @Override
     public String toString() {
         return processName2;
-    }
+    }*/
 }
