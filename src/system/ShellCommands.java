@@ -5,6 +5,7 @@ import memory.Ram;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -17,7 +18,10 @@ public class ShellCommands {
         return currentDir;
     }
 
-    public static HashSet<ProcessPetko> threadSet = new HashSet<>();
+    //public static HashSet<ProcessPetko> threadSet = new HashSet<>();
+    public static ArrayList<ProcessPetko> threadSet = new ArrayList<>();
+
+
 
     public static void setCurrentDir(String currentDir) {
         ShellCommands.currentDir = currentDir;
@@ -39,16 +43,13 @@ public class ShellCommands {
                             currentDir = parrent.getAbsolutePath().toString();
                             System.setProperty("user.dir", currentDir);
                             System.out.println(currentDir);
-                        }
-                        else {
+                        } else {
                             if (changeDirectory(command[1]))
                                 System.out.println(currentDir);
                             else
                                 System.out.println("The system cannot find the path specified.");
                         }
-                    }
-                    catch (ArrayIndexOutOfBoundsException e)
-                    {
+                    } catch (ArrayIndexOutOfBoundsException e) {
                         System.out.println(getCurrentDir());
                     }
 
@@ -63,52 +64,47 @@ public class ShellCommands {
                     break;
 
                 case "ps":
-                    //TODO lista procese i osnovne informacije o njima: trenutna mašinska instrukcija, potrošnja RAM-a, broj izvršenih instrukcija itd.
-                    for(ProcessPetko t:threadSet)
-                    {
-                        System.out.println("Process name:" +t.getProcessName() +"; CurrentInstruciton: " + t.currentInstruction +
-                                "; Number of executed instructions:" + t.numExecutedInstructions + "; Usage of RAM:" + t.getNumOfPages() + " frames");
+
+                    for (ProcessPetko t : threadSet) {
+                        System.out.println("Process name:" + t.getProcessName() + "; CurrentInstruciton: " + t.currentInstruction +
+                                "; Number of executed instructions:" + t.numExecutedInstructions + "; Usage of RAM:" + t.getNumOfPages() + " frames"
+                        +";  STANJE: " + t.stanje);
                     }
                     break;
 
-                case "mkdir","md":
+                case "mkdir", "md":
                     makeDirectory(command[1]);
                     break;
 
                 case "run":
-                    //TODO runs a process
+
                     int id = 0;
 
-                    String path;
-                    if(command[1].contains("\\") || command[1].contains("/"))
-                    {
-                        path=command[1];
-                    }
-                    else
-                    {
-                        path=currentDir+"\\"+command[1];
-                    }
 
-                    if(!threadSet.isEmpty())
-                    {
-                        for(ProcessPetko p:threadSet)
-                        {
-                            if(p.getProcessName().substring(0,path.length()).equalsIgnoreCase(path))
-                            {
-                                String s = p.getProcessName().substring(path.length()+1,p.getProcessName().length()-1);
+                    if (!threadSet.isEmpty()) {
+                        for (ProcessPetko p : threadSet) {
+                            if (p.getProcessName().substring(0, command[1].length()).equalsIgnoreCase(command[1])) {
+                                String s = p.getProcessName().substring(command[1].length() + 1, p.getProcessName().length() - 1);
                                 int x = Integer.parseInt(s);
-                                if(x>=id)
-                                    id = x+1;
+                                if (x >= id)
+                                    id = x + 1;
                             }
                         }
                     }
 
+                    String path;
+                    if (command[1].contains("\\") || command[1].contains("/")) {
+                        path = command[1];
+                    } else {
+                        path = currentDir + "\\" + command[1];
+                    }
 
-                    ProcessPetko t = new ProcessPetko(path,"("+id+")");
+
+                    ProcessPetko t = new ProcessPetko(path, "(" + id + ")");
                     threadSet.add(t);
                     ProcessScheduler.red.add(t);
 
-                    if (scheduler == null || !scheduler.isAlive()) {
+                    if (scheduler == null) {
                         scheduler = new ProcessScheduler();
                         scheduler.start();
                     }
@@ -124,7 +120,7 @@ public class ShellCommands {
                     exitProcedure();
                     break;
 
-                case "rmdir","rd":
+                case "rmdir", "rd":
                     if (removeDirectory(command[1])) {
                         System.out.println("Directory has been removed successfully.");
                     } else {
@@ -133,23 +129,39 @@ public class ShellCommands {
                     break;
 
                 case "mem":
-                    //TODO memory state
+
                     for (int i = 0; i < Ram.NumOfFrames; i++) {
                         if (Ram.frames[i] == 1) {
                             System.out.println("Frame " + i + " -> " + Ram.memory.get(i));
-                        }if(Ram.frames[i] == 3)
-                        {
+                        }
+                        if (Ram.frames[i] == 3) {
                             System.out.println("Frame " + i + "; value:" + Ram.memory.get(i).getValue());
                         }
                     }
                     break;
 
                 case "block":
-                    //TODO treba da blokora proces
+
+                    for (int i = 0; i < threadSet.size(); i++)
+                    {
+                        if(threadSet.get(i).getProcessName().equalsIgnoreCase(command[1]))
+                        {
+                            threadSet.get(i).blockProcess();
+                            break;
+                        }
+                    }
                     break;
 
                 case "unblock":
-                    //TODO treba da deblokira proces
+
+                    for (int i = 0; i < threadSet.size(); i++)
+                    {
+                        if(threadSet.get(i).getProcessName().equalsIgnoreCase(command[1]))
+                        {
+                            threadSet.get(i).UnblockProcess();
+                            break;
+                        }
+                    }
                     break;
 
                 case "help":

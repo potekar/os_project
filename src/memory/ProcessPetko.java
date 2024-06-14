@@ -2,6 +2,7 @@ package memory;
 
 import assembler.AsmHandler;
 import system.ProcessScheduler;
+import system.ProcessState;
 import system.ShellCommands;
 
 import java.io.IOException;
@@ -28,14 +29,13 @@ public class ProcessPetko extends Thread{
     public String currentInstruction;
     public int numExecutedInstructions = 0;
 
-    private boolean isFinished = false;
+    public ProcessState stanje = ProcessState.READY;
 
     public int indikator = 0;
 
     public long quantumCheck = 4000;
     private long remainingSleepTime = 0;
     private final Object lock = new Object();
-    private boolean paused = false;
 
     public ProcessPetko(String filePath,String id){
         this.processName = filePath;
@@ -46,7 +46,6 @@ public class ProcessPetko extends Thread{
         {
             this.processName2=filePath+id;
         }
-
     }
 
     public String getProcessName() {
@@ -100,45 +99,59 @@ public class ProcessPetko extends Thread{
             Ram.frames[PageTable.get(i)] = 0;
         }
 
-        if(isFinished) {
+        if(this.stanje == ProcessState.DONE) {
             ShellCommands.threadSet.remove(this);
             ProcessScheduler.red.remove(this);
         }
     }
 
-    public boolean isFinished() {
-        return isFinished;
-    }
 
-    public void setFinished(boolean finished) {
-        isFinished = finished;
-    }
-
-    public boolean isPaused() {
-        return paused;
-    }
-
-    public void setPaused(boolean paused) {
-        this.paused = paused;
-    }
 
     public void pauseProcess() {
         synchronized (lock) {
-            paused = true;
+            this.stanje = ProcessState.READY;
             quantumCheck = 4000;
         }
     }
 
+    public void blockProcess() {
+        synchronized (lock) {
+            this.stanje = ProcessState.BLOCKED;
+            quantumCheck = 4000;
+        }
+    }
+
+    public void UnblockProcess() {
+        synchronized (lock) {
+            this.stanje = ProcessState.READY;
+            lock.notify();
+        }
+    }
+
+    public void waitForUnblock() {
+        synchronized (lock) {
+            while (this.stanje == ProcessState.BLOCKED) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+
+
     public void resumeProcess() {
         synchronized (lock) {
-            this.setPaused(false);
-            lock.notify();
+           this.stanje = ProcessState.RUNNING;
+           lock.notify();
         }
     }
 
     public void waitForResume() {
         synchronized (lock) {
-            while (paused) {
+            while (this.stanje != ProcessState.RUNNING) {
                 try {
                     lock.wait();
                 } catch (InterruptedException e) {
@@ -156,8 +169,8 @@ public class ProcessPetko extends Thread{
         return remainingSleepTime;
     }
 
-   /* @Override
+    @Override
     public String toString() {
         return processName2;
-    }*/
+    }
 }

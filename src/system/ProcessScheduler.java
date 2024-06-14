@@ -24,14 +24,25 @@ public class ProcessScheduler extends Thread{
 
                     //ProcessPetko p = red.poll();
                     ProcessPetko p = red.take();
+                    if(p.stanje == ProcessState.BLOCKED)
+                    {
+                        red.put(p);
+                        continue;
+                    }
+                    else if(p.stanje == ProcessState.TERMINATED)
+                        continue;
 
-                    if(p.indikator ==0) {
-                        p.start();
+
+
+                    if(p.indikator == 0) {
                         p.indikator = 1;
+                        p.stanje = ProcessState.RUNNING;
+                        p.start();
                     }
                     else if(p.indikator == 1) {
                         p.resumeProcess();
                     }
+
 
 
                     while(true)
@@ -42,13 +53,17 @@ public class ProcessScheduler extends Thread{
                     this.sleep(200);
 
 
-                    p.pauseProcess();
 
 
-                    if (!p.isFinished()) {
+
+                    if (p.stanje != ProcessState.DONE && p.stanje != ProcessState.BLOCKED) {
+                        p.pauseProcess();
                         red.add(p);
+                    }else if(p.stanje == ProcessState.BLOCKED)
+                    {
+                        red.put(p);
                     }
-                    //System.out.println(red);
+
 
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);

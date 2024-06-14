@@ -3,6 +3,7 @@ package assembler;
 import memory.Page;
 import memory.ProcessPetko;
 import memory.Ram;
+import system.ProcessState;
 import system.ShellCommands;
 
 import java.io.IOException;
@@ -43,16 +44,6 @@ public class AsmHandler {
 
             proces.waitForResume();
 
-               /* while (proces.isPaused()) {
-                    synchronized (proces) {
-                        try {
-                            proces.wait();
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                }*/
-
             long x = r.nextInt(4001) + 2000 + proces.getRemainingSleepTime();
             long y = proces.getRemainingSleepTime();
             proces.setRemainingSleepTime(0);
@@ -77,13 +68,8 @@ public class AsmHandler {
                 proces.quantumCheck = 0;
             }
 
-
-
-
             instructionRunner(asmFileLines.get(i), proces, operations);
             proces.numExecutedInstructions += 1;
-
-
         }
 
         /*if(proces.getRemainingSleepTime()>0)
@@ -95,7 +81,7 @@ public class AsmHandler {
             }
         }*/
 
-        proces.setFinished(true);
+        proces.stanje = ProcessState.DONE;
     }
 
     private static void instructionRunner(String instruction,ProcessPetko proces,Operations operations)
@@ -139,6 +125,7 @@ public class AsmHandler {
                         break;
                     }
                 }
+                proces.stanje = ProcessState.DONE;
                 ShellCommands.threadSet.remove(proces);
                 break;
 
