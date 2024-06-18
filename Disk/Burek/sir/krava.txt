@@ -1,8 +1,2 @@
-<<<<<<< HEAD
 mleko
 bik
-=======
-mleko
-bik
->>>>>>> origin/main
-muze
