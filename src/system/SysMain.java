@@ -27,6 +27,7 @@ public class SysMain {
                         getData(p1,f);
                     }
                     else {
+                        ////
                         List<String> content = Files.readAllLines(p1);
                         FileInMemory file1 = new FileInMemory(p1.getFileName().toString(),content.size(),file);
                         file1.setContent(new ArrayList<>(content));
@@ -54,7 +55,7 @@ public class SysMain {
                             Disc.slobodanProstor = Disc.slobodanProstor.getSledbenik();
                             Disc.slobodanProstor.setPrethodnik(null);
                             Disc.zauzetProstor.add(b);
-
+                            ////
                         }
 
                     }

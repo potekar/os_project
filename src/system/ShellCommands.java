@@ -13,7 +13,7 @@ public class ShellCommands {
     private static Scanner sc=new Scanner(System.in);
     private static String currentDir=System.getProperty("user.dir");
     //private static String currentDir="src\\programs";
-    private static String trenutniDirNaziv;
+    public static String trenutniDirNaziv;
 
 
     public static String getCurrentDir() {
@@ -79,19 +79,32 @@ public class ShellCommands {
                     makeDirectory(command[1]);
                     break;
 
-                case "run":
+                case "run","run&save":
 
                     int id = 0;
 
 
                     if (!threadSet.isEmpty()) {
                         for (ProcessPetko p : threadSet) {
-                            if (p.getProcessName().substring(0, command[1].length()).equalsIgnoreCase(command[1])) {
-                                String s = p.getProcessName().substring(command[1].length() + 1, p.getProcessName().length() - 1);
-                                int x = Integer.parseInt(s);
-                                if (x >= id)
-                                    id = x + 1;
+                            if(command[1].contains("/"))
+                            {
+                                int index = command[1].lastIndexOf("/");
+
+                                if (command[1].substring(index+1).equalsIgnoreCase(p.getProcessName().substring(0,p.getProcessName().length()-3))) {
+                                     int x= p.getIdProces();
+                                     if (x >= id)
+                                        id = x + 1;
+                                }
+
+                            }else{
+                                if (p.getProcessName().substring(0, command[1].length()).equalsIgnoreCase(command[1])) {
+                                    int x = p.getIdProces();
+                                    //p.getProcessName().substring(command[1].length() + 1, p.getProcessName().length() - 1);
+                                    if (x >= id)
+                                        id = x + 1;
+                                }
                             }
+
                         }
                     }
 
@@ -103,7 +116,11 @@ public class ShellCommands {
                     }
 
 
-                    ProcessPetko t = new ProcessPetko(path, "(" + id + ")");
+                    ProcessPetko t = new ProcessPetko(path, id);
+                    if(command[0].equalsIgnoreCase("run&save")) {
+                        t.setSave(true);
+                        t.setSaveFileName(command[2]);
+                    }
                     threadSet.add(t);
                     ProcessScheduler.red.add(t);
 
@@ -166,6 +183,7 @@ public class ShellCommands {
                         }
                     }
                     break;
+
 
                 case "help":
                     try {

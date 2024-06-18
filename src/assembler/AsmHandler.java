@@ -36,11 +36,11 @@ public class AsmHandler {
         }
 
         Random r = new Random();
-        instructionRunner(asmFileLines.get(0),proces,operations);
-        proces.numExecutedInstructions +=1;
+        /*instructionRunner(asmFileLines.get(0),proces,operations);
+        proces.numExecutedInstructions +=1;*/
         long quantum = 4000;
 
-        for (int i=1;i<asmFileLines.size();i++) {
+        for (int i=0;i<asmFileLines.size();i++) {
 
             proces.waitForResume();
 
@@ -56,6 +56,8 @@ public class AsmHandler {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
+                instructionRunner(asmFileLines.get(i), proces, operations);
+                proces.numExecutedInstructions += 1;
 
             } else if (x >quantum) {
                 proces.setRemainingSleepTime(x - quantum);
@@ -66,10 +68,16 @@ public class AsmHandler {
                     Thread.currentThread().interrupt();
                 }
                 proces.quantumCheck = 0;
+                instructionRunner(asmFileLines.get(i), proces, operations);
+                proces.numExecutedInstructions += 1;
+                try {
+                    proces.sleep(200);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
-            instructionRunner(asmFileLines.get(i), proces, operations);
-            proces.numExecutedInstructions += 1;
+
         }
 
         /*if(proces.getRemainingSleepTime()>0)
@@ -113,6 +121,7 @@ public class AsmHandler {
 
             case "POP":
                 String val=operations.pop();
+                proces.setRezultat(Integer.parseInt(val));
                 System.out.println(proces.getProcessName() + ":" + val);
                 System.out.print(">>");
                 for(int i=100;i< Ram.NumOfFrames;i++)

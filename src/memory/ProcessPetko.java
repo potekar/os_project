@@ -5,6 +5,8 @@ import system.ProcessScheduler;
 import system.ProcessState;
 import system.ShellCommands;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,6 +26,12 @@ public class ProcessPetko extends Thread{
 
     private String processName2;
 
+    private boolean save = false;
+
+    private int rezultat;
+
+    private String saveFileName;
+
     private ArrayList<String> instructions = new ArrayList<>();
 
     public String currentInstruction;
@@ -35,27 +43,87 @@ public class ProcessPetko extends Thread{
 
     public long quantumCheck = 4000;
     private long remainingSleepTime = 0;
+
+    private int idProces;
     private final Object lock = new Object();
 
-    public ProcessPetko(String filePath,String id){
+    public ProcessPetko(String filePath,int id){
         this.processName = filePath;
         int x = -1;
+        this.idProces = id;
         if(filePath.contains("/"))
          x = filePath.lastIndexOf("/");
         else if(filePath.contains("\\"))
                 x = filePath.lastIndexOf("\\");
         try{
             //this.processName2 = filePath.substring(ShellCommands.getCurrentDir().length()+1)+id;
-            this.processName2 = this.processName.substring(x+1) + id;
+            this.processName2 = this.processName.substring(x+1) + "(" +id+")";
         }
         catch (StringIndexOutOfBoundsException e)
         {
-            this.processName2=filePath+id;
+            this.processName2=filePath+"("+id+")";
         }
+    }
+
+    public int getIdProces() {
+        return idProces;
+    }
+
+    public String getSaveFileName() {
+        return saveFileName;
+    }
+
+    public void setSaveFileName(String saveFileName) {
+        this.saveFileName = saveFileName;
+    }
+
+    public int getRezultat() {
+        return rezultat;
+    }
+
+    public void setRezultat(int rezultat) {
+        this.rezultat = rezultat;
+    }
+
+    public boolean isSave() {
+        return save;
+    }
+
+    public void setSave(boolean save) {
+        this.save = save;
+    }
+
+    public Map<Integer, Integer> getPageTable() {
+        return PageTable;
+    }
+
+
+
+    public ArrayList<String> getInstructions() {
+        return instructions;
+    }
+
+    public void setPageTable(Map<Integer, Integer> pageTable) {
+        PageTable = pageTable;
+    }
+
+    public void setNumOfPages(int numOfPages) {
+        this.numOfPages = numOfPages;
+    }
+
+
+
+
+    public void setInstructions(ArrayList<String> instructions) {
+        this.instructions = instructions;
     }
 
     public String getProcessName() {
         return processName2;
+    }
+
+    public String getFilePath(){
+        return this.processName;
     }
 
     public int getNumOfPages() {
@@ -64,39 +132,7 @@ public class ProcessPetko extends Thread{
 
     @Override
     public void run() {
-        try {
-            this.instructions = (ArrayList<String>) Files.readAllLines(Paths.get(this.processName));
-        } catch (IOException e) {
-            System.err.println("Error reading ASM file: " + e.getMessage());
-        }
-
-        this.numOfPages = this.instructions.size() / Page.SIZE;
-        int br = 0;
-
-        for(int i=0;i<numOfPages;i++)
-        {
-            Page p = new Page(i,processName2);
-            int x = 0;
-
-            while(x<Page.SIZE)
-            {
-                if(br<this.instructions.size())
-                    p.getContent().add(this.instructions.get(br));
-                x++;
-                br++;
-            }
-
-            for(int j = 0;j< Ram.NumOfFrames;j++)
-            {
-                if(Ram.frames[j] == 0)
-                {
-                    Ram.frames[j] = 1;
-                    Ram.memory.put(j,p);
-                    this.PageTable.put(i,j);
-                    break;
-                }
-            }
-        }
+        DMAConntroler.fromDiskToRam(this);
 
         AsmHandler.instructionReader(this);
 
@@ -108,6 +144,11 @@ public class ProcessPetko extends Thread{
         if(this.stanje == ProcessState.DONE) {
             ShellCommands.threadSet.remove(this);
             ProcessScheduler.red.remove(this);
+        }
+
+        if(this.save)
+        {
+            DMAConntroler.fromRamToDisk(this);
         }
     }
 
@@ -130,7 +171,7 @@ public class ProcessPetko extends Thread{
     public void UnblockProcess() {
         synchronized (lock) {
             this.stanje = ProcessState.READY;
-            lock.notify();
+            //lock.notify();
         }
     }
 

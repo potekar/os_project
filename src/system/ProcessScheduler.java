@@ -48,9 +48,11 @@ public class ProcessScheduler extends Thread{
                     while(true)
                     {
                         if(p.quantumCheck<=0)
+                        {
                             break;
+                        }
                     }
-                    this.sleep(200);
+                    //this.sleep(200);
 
 
 
