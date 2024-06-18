@@ -1,18 +1,20 @@
 package system;
 
-import memory.ProcessPetko;
-import memory.Ram;
+import memory.*;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Scanner;
 
 public class ShellCommands {
     private static Scanner sc=new Scanner(System.in);
     private static String currentDir=System.getProperty("user.dir");
     //private static String currentDir="src\\programs";
+    private static String trenutniDirNaziv;
+
 
     public static String getCurrentDir() {
         return currentDir;
@@ -42,6 +44,7 @@ public class ShellCommands {
                             File parrent = new File(new File(currentDir).getParent());
                             currentDir = parrent.getAbsolutePath().toString();
                             System.setProperty("user.dir", currentDir);
+                            trenutniDirNaziv = currentDir.substring(currentDir.lastIndexOf("\\")+1);
                             System.out.println(currentDir);
                         } else {
                             if (changeDirectory(command[1]))
@@ -174,6 +177,33 @@ public class ShellCommands {
                     }
                     break;
 
+                case "sp":
+                    //slobodan prostor
+                    Pointer x = Disc.slobodanProstor;
+                    int brojac = 0;
+                    while(x.getSledbenik()!= null)
+                    {
+                        System.out.println(x.getBlock().getAddress());
+                        x = x.getSledbenik();
+                        brojac++;
+                        if(brojac == 25)
+                            break;
+                    }
+                    break;
+                case "zp":
+                    //Zauzet prostor
+                    for(Block b:Disc.zauzetProstor) {
+                        System.out.println(b.getFileName() + "; " + b.getAddress() + "; " + b.getContent());
+                    }
+                    break;
+
+                case "lf":
+                    //lista fajlova
+                    System.out.println(Disc.listaFile);
+                    break;
+                case "tdn":
+                    System.out.println(trenutniDirNaziv);
+                    break;
                 default:
                     System.out.println("'" + command[0] + "' is not recognized as an internal or external command");
 
@@ -215,10 +245,12 @@ public class ShellCommands {
                 }
             }
         }
+
+
     }
 
     private static boolean changeDirectory(String dirName) {
-
+        trenutniDirNaziv = dirName;
         File dir=new File(currentDir);
         File[] firstLevelFiles=dir.listFiles();
         if (firstLevelFiles != null && firstLevelFiles.length > 0) {
@@ -238,6 +270,15 @@ public class ShellCommands {
         File dir=new File(currentDir+'\\'+dirName);
         if(!dir.exists())
         {
+            for(FileInMemory f:Disc.listaFile)
+                if(f.getName().equals(trenutniDirNaziv))
+                {
+                    FileInMemory fim = new FileInMemory(dirName,0,f);
+                    Disc.listaFile.add(fim);
+                    f.getPodfajlovi().add(fim);
+                    break;
+                }
+
             return dir.mkdir();
         }
         else
@@ -256,6 +297,65 @@ public class ShellCommands {
             System.out.println("are you sure you want to remove "+dirName+ "[Y/N]");
             if(s.next().equalsIgnoreCase("y"))
             {
+                Iterator<FileInMemory> it = Disc.listaFile.iterator();
+                while(it.hasNext())
+                {
+
+                    FileInMemory f = it.next();
+                    if(f.getName().equals(dirName))
+                    {
+                        if(f.getContent().size()>0)
+                        {      Iterator<Block> it1 = Disc.zauzetProstor.iterator();
+                            while(it1.hasNext())
+                            {   Block b = it1.next();
+                                if(b.getFileName().equals(dirName)) {
+
+
+
+                                    b.setContent(new ArrayList<>());
+                                    b.setOcuppied(false);
+
+                                    Pointer x = Disc.slobodanProstor;
+                                    while (x.getSledbenik() != null) {
+
+                                        if (x.getBlock().getAddress() < b.getAddress()) {
+                                            if (x.getSledbenik() != null)
+                                                x = x.getSledbenik();
+                                            else {
+                                                Pointer novi = new Pointer(b);
+                                                novi.setPrethodnik(x);
+                                                x.setSledbenik(novi);
+                                                break;
+                                            }
+                                        }
+                                        else {
+                                            if (x.getPrethodnik() == null) {
+                                                Pointer novi = new Pointer(b);
+                                                novi.setSledbenik(x);
+                                                x.setPrethodnik(novi);
+                                                Disc.slobodanProstor = novi;
+                                            } else {
+                                                Pointer novi = new Pointer(b);
+                                                novi.setSledbenik(x);
+                                                novi.setPrethodnik(x.getPrethodnik());
+                                                x.getPrethodnik().setSledbenik(novi);
+                                                x.setPrethodnik(novi);
+
+                                            }
+                                            break;
+                                        }
+                                    }
+
+                                    it1.remove();
+                                }
+                            }
+                        }
+                    it.remove();
+                        break;
+                    }
+                }
+
+
                 return dir.delete();
             }
         }
@@ -325,6 +425,7 @@ public class ShellCommands {
                         "\n" +
                         "    command - displays help information on that command.");
                 break;
+
 
             default:
                 System.out.println("'" + command + "' is not recognized as an internal or external command");

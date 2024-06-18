@@ -39,8 +39,14 @@ public class ProcessPetko extends Thread{
 
     public ProcessPetko(String filePath,String id){
         this.processName = filePath;
+        int x = -1;
+        if(filePath.contains("/"))
+         x = filePath.lastIndexOf("/");
+        else if(filePath.contains("\\"))
+                x = filePath.lastIndexOf("\\");
         try{
-            this.processName2 = filePath.substring(ShellCommands.getCurrentDir().length()+1)+id;
+            //this.processName2 = filePath.substring(ShellCommands.getCurrentDir().length()+1)+id;
+            this.processName2 = this.processName.substring(x+1) + id;
         }
         catch (StringIndexOutOfBoundsException e)
         {
