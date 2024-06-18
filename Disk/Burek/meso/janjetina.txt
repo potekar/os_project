@@ -1,8 +1,0 @@
-<<<<<<< HEAD
-janje
-manje
-=======
-janje
-manje
->>>>>>> origin/main
-tanje
