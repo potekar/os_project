@@ -1,0 +1,16 @@
+<<<<<<< HEAD
+koka
+jaje
+pijetao
+cezar
+salata
+kajgana
+=======
+koka
+jaje
+pijetao
+cezar
+salata
+kajgana
+>>>>>>> origin/main
+2

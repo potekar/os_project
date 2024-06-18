@@ -1,0 +1,18 @@
+<<<<<<< HEAD
+PUSH 10
+PUSH 20
+ADD
+PUSH 10
+PUSH 10
+ADD
+MUL
+=======
+PUSH 10
+PUSH 20
+ADD
+PUSH 10
+PUSH 10
+ADD
+MUL
+>>>>>>> origin/main
+POP
