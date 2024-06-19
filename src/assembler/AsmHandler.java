@@ -1,5 +1,8 @@
 package assembler;
 
+import GUI.Controller;
+import javafx.application.Platform;
+import javafx.scene.control.TextArea;
 import memory.Page;
 import memory.ProcessPetko;
 import memory.Ram;
@@ -14,10 +17,10 @@ import java.util.List;
 import java.util.Random;
 
 public class AsmHandler {
-
-    public static void instructionReader(ProcessPetko proces)
+    Controller c=new Controller();
+    private TextArea ta=c.getTextArea();
+    public void instructionReader(ProcessPetko proces)
     {
-
         List<String> asmFileLines = new ArrayList<>();
         Operations operations = new Operations(proces);
 
@@ -92,11 +95,10 @@ public class AsmHandler {
         proces.stanje = ProcessState.DONE;
     }
 
-    private static void instructionRunner(String instruction,ProcessPetko proces,Operations operations)
+    private void instructionRunner(String instruction,ProcessPetko proces,Operations operations)
     {
         proces.currentInstruction = instruction;
         String[] arr=instruction.split(" ");
-
 
         switch (arr[0]){
             case "ADD":
@@ -122,6 +124,11 @@ public class AsmHandler {
             case "POP":
                 String val=operations.pop();
                 proces.setRezultat(Integer.parseInt(val));
+
+                Platform.runLater(() -> {
+                    ta.appendText(proces.getProcessName()+":"+val);
+                });
+
                 System.out.println(proces.getProcessName() + ":" + val);
                 System.out.print(">>");
                 for(int i=100;i< Ram.NumOfFrames;i++)

@@ -132,9 +132,10 @@ public class ProcessPetko extends Thread{
 
     @Override
     public void run() {
+        AsmHandler asmHandler=new AsmHandler();
         DMAConntroler.fromDiskToRam(this);
 
-        AsmHandler.instructionReader(this);
+        asmHandler.instructionReader(this);
 
         for(Integer i:PageTable.keySet())
         {

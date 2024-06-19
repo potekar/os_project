@@ -1,16 +1,21 @@
 package system;
 
 import assembler.AsmHandler;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import memory.*;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SysMain {
+public class SysMain extends Application {
 
     public static void getData(Path p,FileInMemory file)
     {
@@ -87,8 +92,6 @@ public class SysMain {
             pointer = p1;
         }
 
-
-
         Path p = Paths.get("Disk");
         FileInMemory file = new FileInMemory(p.getFileName().toString(),0,null);
         getData(p,file);
@@ -96,11 +99,18 @@ public class SysMain {
        /* for(Block b:Disc.zauzetProstor)
         {
             System.out.println(b.getFileName() + "  " + b.getAddress() + "  " + b.getContent());
-
         }*/
 
-
-        while(true)
-            ShellCommands.getCommand();
+        launch(args);
+    }
+    @Override
+    public void start(Stage stage) throws IOException {
+        stage.setResizable(false);
+        FXMLLoader fxmlLoader = new FXMLLoader(SysMain.class.getResource("/GUI/main.fxml"));
+        Scene sc=new Scene(fxmlLoader.load());
+        sc.getStylesheets().add(getClass().getResource("/GUI/style.css").toExternalForm());
+        stage.setTitle("Systemex");
+        stage.setScene(sc);
+        stage.show();
     }
 }

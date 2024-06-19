@@ -1,41 +1,41 @@
 package system;
 
+import GUI.Controller;
+import javafx.fxml.FXML;
+import javafx.scene.control.TextArea;
 import memory.*;
 
+import java.io.Console;
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Scanner;
 
 public class ShellCommands {
+
+    private static String output;
     private static Scanner sc=new Scanner(System.in);
     private static String currentDir=System.getProperty("user.dir");
     //private static String currentDir="src\\programs";
     public static String trenutniDirNaziv;
 
-
+    static StringBuilder sb=new StringBuilder();
     public static String getCurrentDir() {
         return currentDir;
     }
 
     //public static HashSet<ProcessPetko> threadSet = new HashSet<>();
     public static ArrayList<ProcessPetko> threadSet = new ArrayList<>();
-
-
-
     public static void setCurrentDir(String currentDir) {
         ShellCommands.currentDir = currentDir;
     }
 
     private static ProcessScheduler scheduler;
 
-    public static void getCommand()
+    public static String getCommand(String input)
     {
-
-            System.out.print(">>");
-            String[] command = sc.nextLine().split(" ");
+            String[] command = input.split(" ");
+            sb.delete(0,sb.length());
 
             switch (command[0].toLowerCase()) {
                 case "cd":
@@ -45,44 +45,51 @@ public class ShellCommands {
                             currentDir = parrent.getAbsolutePath().toString();
                             System.setProperty("user.dir", currentDir);
                             trenutniDirNaziv = currentDir.substring(currentDir.lastIndexOf("\\")+1);
-                            System.out.println(currentDir);
+                            return currentDir;
+
                         } else {
                             if (changeDirectory(command[1]))
-                                System.out.println(currentDir);
+                            {
+                                return (currentDir);
+
+                            }
                             else
-                                System.out.println("The system cannot find the path specified.");
+                            {
+                                return ("The system cannot find the path specified.");
+
+                            }
+
                         }
                     } catch (ArrayIndexOutOfBoundsException e) {
-                        System.out.println(getCurrentDir());
+                        return (getCurrentDir());
                     }
 
-                    break;
-
                 case "dir", "ls":
-                    listDirectory(currentDir);
-                    break;
+                    return listDirectory(currentDir);
+
 
                 case "tree":
-                    listDirectoryTree(new File(currentDir), "");
-                    break;
+                    return listDirectoryTree(new File(currentDir), "");
+
 
                 case "ps":
 
                     for (ProcessPetko t : threadSet) {
-                        System.out.println("Process name:" + t.getProcessName() + "; CurrentInstruciton: " + t.currentInstruction +
+                        sb.append("Process name:" + t.getProcessName() + "; CurrentInstruciton: " + t.currentInstruction +
                                 "; Number of executed instructions:" + t.numExecutedInstructions + "; Usage of RAM:" + t.getNumOfPages() + " frames"
                         +";  STANJE: " + t.stanje);
                     }
-                    break;
+                    return sb.toString();
 
                 case "mkdir", "md":
-                    makeDirectory(command[1]);
-                    break;
+                    if(!makeDirectory(command[1]))
+                    {
+                        return "directory already exists.";
+                    }
+
 
                 case "run","run&save":
-
                     int id = 0;
-
 
                     if (!threadSet.isEmpty()) {
                         for (ProcessPetko p : threadSet) {
@@ -134,7 +141,7 @@ public class ShellCommands {
                         ProcessScheduler ps = new ProcessScheduler();
                         ps.start();
                     }*/
-                    break;
+                    return "";
 
                 case "shutdown":
                     exitProcedure();
@@ -142,26 +149,23 @@ public class ShellCommands {
 
                 case "rmdir", "rd":
                     if (removeDirectory(command[1])) {
-                        System.out.println("Directory has been removed successfully.");
+                        return ("Directory has been removed successfully.");
                     } else {
-                        System.out.println("Directory hasn't been removed.");
+                        return ("Directory hasn't been removed.");
                     }
-                    break;
 
                 case "mem":
-
                     for (int i = 0; i < Ram.NumOfFrames; i++) {
                         if (Ram.frames[i] == 1) {
-                            System.out.println("Frame " + i + " -> " + Ram.memory.get(i));
+                            sb.append("Frame " + i + " -> " + Ram.memory.get(i));
                         }
                         if (Ram.frames[i] == 3) {
-                            System.out.println("Frame " + i + "; value:" + Ram.memory.get(i).getValue());
+                            sb.append("Frame " + i + "; value:" + Ram.memory.get(i).getValue());
                         }
                     }
-                    break;
+                    return sb.toString();
 
                 case "block":
-
                     for (int i = 0; i < threadSet.size(); i++)
                     {
                         if(threadSet.get(i).getProcessName().equalsIgnoreCase(command[1]))
@@ -187,13 +191,13 @@ public class ShellCommands {
 
                 case "help":
                     try {
-                        helpProcedure(command[1]);
+                        return helpProcedure(command[1]);
                     }
                     catch (IndexOutOfBoundsException e)
                     {
-                        helpProcedure();
+                       return helpProcedure();
+
                     }
-                    break;
 
                 case "sp":
                     //slobodan prostor
@@ -201,41 +205,47 @@ public class ShellCommands {
                     int brojac = 0;
                     while(x.getSledbenik()!= null)
                     {
-                        System.out.println(x.getBlock().getAddress());
+                        sb.append(x.getBlock().getAddress());
                         x = x.getSledbenik();
                         brojac++;
                         if(brojac == 25)
                             break;
                     }
-                    break;
+                   return sb.toString();
+
                 case "zp":
                     //Zauzet prostor
                     for(Block b:Disc.zauzetProstor) {
-                        System.out.println(b.getFileName() + "; " + b.getAddress() + "; " + b.getContent());
+                        sb.append(b.getFileName() + "; " + b.getAddress() + "; " + b.getContent());
                     }
-                    break;
+                    return sb.toString();
 
                 case "lf":
                     //lista fajlova
-                    System.out.println(Disc.listaFile);
-                    break;
+                    return (Disc.listaFile.toString());
+                    
                 case "tdn":
-                    System.out.println(trenutniDirNaziv);
-                    break;
+                    return (trenutniDirNaziv.toString());
+
+                case "test":
+                    Controller c=new Controller();
+                    TextArea ta=c.getTextArea();
+                    System.out.println(ta);
+                    System.out.println(ta.getText());
                 default:
-                    System.out.println("'" + command[0] + "' is not recognized as an internal or external command");
+                    System.out.println ("'" + command[0] + "' is not recognized as an internal or external command");
 
             }
 
-
+            return null;
     }
 
-    private static void listDirectoryTree(File dir,String indent) {
+    private static String listDirectoryTree(File dir,String indent) {
         //System.out.println(currentDir);
         File[] files = dir.listFiles();
         if (files == null) {
-            System.out.println(indent + dir.getName());
-            return;
+           sb.append(indent + dir.getName()+"\n");
+            return sb.toString();
         }
 
         for (int i=0;i<files.length;i++) {
@@ -243,28 +253,30 @@ public class ShellCommands {
             if(i==files.length-1)
                 arrow="└─────";
             if (files[i].isDirectory()) {
-                System.out.println(indent + arrow + files[i].getName());
+                sb.append(indent + arrow + files[i].getName()+"\n");
                 listDirectoryTree(files[i], indent + "│    ");
             } else {
-                System.out.println(indent + arrow + files[i].getName());
+                sb.append(indent + arrow + files[i].getName()+"\n");
             }
         }
+
+        return sb.toString();
     }
 
-    private static void listDirectory(String dirPath) {
+    private static String listDirectory(String dirPath) {
         File dir = new File(dirPath);
         File[] firstLevelFiles = dir.listFiles();
         if (firstLevelFiles != null && firstLevelFiles.length > 0) {
             for (File aFile : firstLevelFiles) {
                 if (aFile.isDirectory()) {
-                    System.out.println("[" + aFile.getName() + "]");
+                    sb.append("[" + aFile.getName() + "]"+"\n");
                 } else {
-                    System.out.println(aFile.getName());
+                    sb.append(aFile.getName()+"\n");
                 }
             }
         }
 
-
+        return sb.toString();
     }
 
     private static boolean changeDirectory(String dirName) {
@@ -387,7 +399,7 @@ public class ShellCommands {
         System.exit(0);
     }
 
-    private static void helpProcedure(String command) {
+    private static String helpProcedure(String command) {
         switch (command){
             case "cd":
                 System.out.println("Displays the name of or changes the current directory \n" +
@@ -416,43 +428,42 @@ public class ShellCommands {
                 break;
 
             case "rmdir","rd":
-                System.out.println("Removes (deletes) a directory.\n\n" +
+                return ("Removes (deletes) a directory.\n\n" +
                         "RMDIR <directory name>\n" +
                         "RD <directory name>");
-                break;
+
 
             case "mem":
-                System.out.println("Shows current memory usage.\n" +
+                return ("Shows current memory usage.\n" +
                         "[Frame] [Process name] [Page] [Page content] -> process memory usage\n" +
                         "[Frame] [Value] -> shared memory");
-                break;
+
 
             case "shutdown":
-                System.out.println("Allows proper local shutdown of machine.");break;
+                return ("Allows proper local shutdown of machine.");
 
             case "run":
-                System.out.println("Starts a process.\n" +
+                return("Starts a process.\n" +
                         "RUN <process name in current direcory>\n" +
                         "RUN <relative/absolute process path>");
-                break;
 
             case "help":
-                System.out.println("Provides help information for commands.\n" +
+                return ("Provides help information for commands.\n" +
                         "\n" +
                         "HELP [command]\n" +
                         "\n" +
                         "    command - displays help information on that command.");
-                break;
 
 
             default:
-                System.out.println("'" + command + "' is not recognized as an internal or external command");
+                return ("'" + command + "' is not recognized as an internal or external command");
         }
+        return command;
     } //TODO dodati ostale komande
 
-    private static void helpProcedure()
+    private static String helpProcedure()
     {
-        System.out.println("For more information on a specific command, type HELP <command-name>\n" +
+        return  ("For more information on a specific command, type HELP <command-name>\n" +
                 "CD             Displays the name of or changes the current directory.\n" +
                 "DIR            Displays a list of files and subdirectories in a directory.\n" +
                 "TREE           Graphically displays the directory structure of a drive or path.\n" +
@@ -467,4 +478,10 @@ public class ShellCommands {
                 "UNBLOCK        Unblocks a process\n" +
                 "LS             Displays a list of files and subdirectories in a directory.");
     }
+
+    public static String getOutput(String output)
+    {
+        return output;
+    }
+
 }
