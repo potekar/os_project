@@ -8,7 +8,7 @@
 .text-area .content{
     -fx-background-color: #282c34;
     -fx-fill: #4184cf ;
-    -fx-font-size: 15px;
+    -fx-font-size: 16px;
 }
 
 .text-area   {
@@ -19,4 +19,5 @@
     -fx-background-color:  #282c34;
     -fx-text-fill: #4184cf;
     -fx-font-size: 16px;
+    -fx-font-family: "C:\Users\Boris\Desktop\os_project\src\GUI\fonts\ttf\JetBrainsMono-Regular.ttf";
 }

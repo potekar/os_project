@@ -18,7 +18,7 @@ import java.util.Random;
 
 public class AsmHandler {
     Controller c=new Controller();
-    private TextArea ta=c.getTextArea();
+    //private TextArea ta=c.getTextArea();
     public void instructionReader(ProcessPetko proces)
     {
         List<String> asmFileLines = new ArrayList<>();
@@ -124,13 +124,8 @@ public class AsmHandler {
             case "POP":
                 String val=operations.pop();
                 proces.setRezultat(Integer.parseInt(val));
+                Controller.updateTa(proces.getProcessName() + ":" + val);
 
-                Platform.runLater(() -> {
-                    ta.appendText(proces.getProcessName()+":"+val);
-                });
-
-                System.out.println(proces.getProcessName() + ":" + val);
-                System.out.print(">>");
                 for(int i=100;i< Ram.NumOfFrames;i++)
                 {
                     if(Ram.frames[i] == 2)

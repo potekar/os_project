@@ -19,7 +19,7 @@ public class ShellCommands {
     //private static String currentDir="src\\programs";
     public static String trenutniDirNaziv;
 
-    static StringBuilder sb=new StringBuilder();
+    public StringBuilder sb=new StringBuilder();
     public static String getCurrentDir() {
         return currentDir;
     }
@@ -32,7 +32,8 @@ public class ShellCommands {
 
     private static ProcessScheduler scheduler;
 
-    public static String getCommand(String input)
+
+    public String getCommand(String input)
     {
             String[] command = input.split(" ");
             sb.delete(0,sb.length());
@@ -73,7 +74,7 @@ public class ShellCommands {
 
 
                 case "ps":
-
+                    sb.append("Processes:\n");
                     for (ProcessPetko t : threadSet) {
                         sb.append("Process name:" + t.getProcessName() + "; CurrentInstruciton: " + t.currentInstruction +
                                 "; Number of executed instructions:" + t.numExecutedInstructions + "; Usage of RAM:" + t.getNumOfPages() + " frames"
@@ -141,7 +142,7 @@ public class ShellCommands {
                         ProcessScheduler ps = new ProcessScheduler();
                         ps.start();
                     }*/
-                    return "";
+                    return "executed";
 
                 case "shutdown":
                     exitProcedure();
@@ -155,12 +156,13 @@ public class ShellCommands {
                     }
 
                 case "mem":
+                    sb.append("Memory usage:\n");
                     for (int i = 0; i < Ram.NumOfFrames; i++) {
                         if (Ram.frames[i] == 1) {
-                            sb.append("Frame " + i + " -> " + Ram.memory.get(i));
+                            sb.append("Frame " + i + " -> " + Ram.memory.get(i)+"\n");
                         }
                         if (Ram.frames[i] == 3) {
-                            sb.append("Frame " + i + "; value:" + Ram.memory.get(i).getValue());
+                            sb.append("Frame " + i + "; value:" + Ram.memory.get(i).getValue()+"\n");
                         }
                     }
                     return sb.toString();
@@ -171,22 +173,21 @@ public class ShellCommands {
                         if(threadSet.get(i).getProcessName().equalsIgnoreCase(command[1]))
                         {
                             threadSet.get(i).blockProcess();
-                            break;
+                            return ("Process "+command[1]+" blocked");
                         }
                     }
-                    break;
+                    return "Process not found";
 
                 case "unblock":
-
                     for (int i = 0; i < threadSet.size(); i++)
                     {
                         if(threadSet.get(i).getProcessName().equalsIgnoreCase(command[1]))
                         {
                             threadSet.get(i).UnblockProcess();
-                            break;
+                            return ("Process "+command[1]+" unblocked");
                         }
                     }
-                    break;
+                    return "Process not found";
 
 
                 case "help":
@@ -199,13 +200,14 @@ public class ShellCommands {
 
                     }
 
-                case "sp":
+                case "fs":
                     //slobodan prostor
+                    sb.append("Freespace:\n ");
                     Pointer x = Disc.slobodanProstor;
                     int brojac = 0;
                     while(x.getSledbenik()!= null)
                     {
-                        sb.append(x.getBlock().getAddress());
+                        sb.append(x.getBlock().getAddress()).append("\n");
                         x = x.getSledbenik();
                         brojac++;
                         if(brojac == 25)
@@ -213,34 +215,26 @@ public class ShellCommands {
                     }
                    return sb.toString();
 
-                case "zp":
-                    //Zauzet prostor
+                case "us":
+                    sb.append("Used space:\n");
                     for(Block b:Disc.zauzetProstor) {
-                        sb.append(b.getFileName() + "; " + b.getAddress() + "; " + b.getContent());
+                        sb.append(b.getFileName() + "; " + b.getAddress() + "; " + b.getContent()).append("\n");
                     }
                     return sb.toString();
 
-                case "lf":
+                case "fl":
                     //lista fajlova
                     return (Disc.listaFile.toString());
-                    
-                case "tdn":
-                    return (trenutniDirNaziv.toString());
 
-                case "test":
-                    Controller c=new Controller();
-                    TextArea ta=c.getTextArea();
-                    System.out.println(ta);
-                    System.out.println(ta.getText());
+
                 default:
-                    System.out.println ("'" + command[0] + "' is not recognized as an internal or external command");
+                    return ("'" + command[0] + "' is not recognized as an internal or external command");
 
             }
-
             return null;
     }
 
-    private static String listDirectoryTree(File dir,String indent) {
+    private String listDirectoryTree(File dir,String indent) {
         //System.out.println(currentDir);
         File[] files = dir.listFiles();
         if (files == null) {
@@ -263,7 +257,7 @@ public class ShellCommands {
         return sb.toString();
     }
 
-    private static String listDirectory(String dirPath) {
+    private String listDirectory(String dirPath) {
         File dir = new File(dirPath);
         File[] firstLevelFiles = dir.listFiles();
         if (firstLevelFiles != null && firstLevelFiles.length > 0) {
@@ -402,30 +396,29 @@ public class ShellCommands {
     private static String helpProcedure(String command) {
         switch (command){
             case "cd":
-                System.out.println("Displays the name of or changes the current directory \n" +
+                return ("Displays the name of or changes the current directory \n" +
                         "CD <directory>\n" +
                         "CD <..>\n" +
                         "  ..   Specifies that you want to change to the parent directory.\n" +
                         "\n" +
                         "Type CD without parameters to display the current drive and directory.");
-                break;
 
             case "dir","ls":
-                System.out.println("Displays a list of files and subdirectories in a directory.");break;
+                return ("Displays a list of files and subdirectories in a directory.");
 
             case "tree":
-                System.out.println("Graphically displays the folder structure of a drive or path.");break;
+                return ("Graphically displays the folder structure of a drive or path.");
 
             case "ps":
-                System.out.println("Lists current processes and their state.\n" +
-                        "[Process name] [CurrentInstruciton] [Number of executed instructions] [Usage of RAM]");break;
+                return ("Lists current processes and their state.\n" +
+                        "[Process name] [CurrentInstruciton] [Number of executed instructions] [Usage of RAM]");
 
             case "mkdir","md":
-                System.out.println("Creates a directory.\n" +
+                return ("Creates a directory.\n" +
                         "\n" +
                         "MKDIR <directory name>\n" +
                         "MD <directory name>");
-                break;
+
 
             case "rmdir","rd":
                 return ("Removes (deletes) a directory.\n\n" +
@@ -458,7 +451,7 @@ public class ShellCommands {
             default:
                 return ("'" + command + "' is not recognized as an internal or external command");
         }
-        return command;
+
     } //TODO dodati ostale komande
 
     private static String helpProcedure()
@@ -476,7 +469,10 @@ public class ShellCommands {
                 "HELP           Provides Help information for commands.\n" +
                 "BLOCK          Blocks a process.\n" +
                 "UNBLOCK        Unblocks a process\n" +
-                "LS             Displays a list of files and subdirectories in a directory.");
+                "LS             Displays a list of files and subdirectories in a directory."+
+                "FS             Returns free space\n" +
+                "FL             Returns file list\n" +
+                "US             Returns used space\n");
     }
 
     public static String getOutput(String output)

@@ -153,8 +153,6 @@ public class ProcessPetko extends Thread{
         }
     }
 
-
-
     public void pauseProcess() {
         synchronized (lock) {
             this.stanje = ProcessState.READY;
