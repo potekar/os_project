@@ -13,7 +13,7 @@ import java.util.Scanner;
 
 public class ShellCommands {
 
-    private static String output;
+
     private static Scanner sc=new Scanner(System.in);
     private static String currentDir=System.getProperty("user.dir");
     //private static String currentDir="src\\programs";
@@ -78,7 +78,7 @@ public class ShellCommands {
                     for (ProcessPetko t : threadSet) {
                         sb.append("Process name:" + t.getProcessName() + "; CurrentInstruciton: " + t.currentInstruction +
                                 "; Number of executed instructions:" + t.numExecutedInstructions + "; Usage of RAM:" + t.getNumOfPages() + " frames"
-                        +";  STANJE: " + t.stanje);
+                        +";  STANJE: " + t.stanje + "\n");
                     }
                     return sb.toString();
 
@@ -129,6 +129,8 @@ public class ShellCommands {
                         t.setSave(true);
                         t.setSaveFileName(command[2]);
                     }
+
+
                     threadSet.add(t);
                     ProcessScheduler.red.add(t);
 
@@ -148,12 +150,19 @@ public class ShellCommands {
                     exitProcedure();
                     break;
 
-                case "rmdir", "rd":
+
+
+
+
+                case "rmdir":
+
                     if (removeDirectory(command[1])) {
                         return ("Directory has been removed successfully.");
                     } else {
                         return ("Directory hasn't been removed.");
                     }
+
+
 
                 case "mem":
                     sb.append("Memory usage:\n");
@@ -312,15 +321,11 @@ public class ShellCommands {
         return false;
     }
 
+
+
     private static boolean removeDirectory(String dirName)
     {
-        File dir=new File(currentDir+'\\'+dirName);
-        if(dir.exists())
-        {
-            Scanner s=new Scanner(System.in);
-            System.out.println("are you sure you want to remove "+dirName+ "[Y/N]");
-            if(s.next().equalsIgnoreCase("y"))
-            {
+                File dir=new File(currentDir+'\\'+dirName);
                 Iterator<FileInMemory> it = Disc.listaFile.iterator();
                 while(it.hasNext())
                 {
@@ -378,17 +383,11 @@ public class ShellCommands {
                         break;
                     }
                 }
-
-
                 return dir.delete();
-            }
-        }
-        else
-        {
-            System.out.println("directory does not exist.");
-        }
-        return false;
     }
+
+
+
     private static void exitProcedure() {
         System.exit(0);
     }

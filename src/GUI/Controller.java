@@ -10,11 +10,15 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import system.ShellCommands;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class Controller{
     public static TextArea ta;
+
+    private boolean awaitingConfirmation = false;
+    private String directory;
 
     @FXML
     TextField textField;
@@ -24,20 +28,73 @@ public class Controller{
      static String input;
      ShellCommands sh=new ShellCommands();
 
+
+    private void handleCommand(TextField textField1,TextArea textArea1)
+    {
+        if (!textField1.getText().startsWith("rmdir") && !textField1.getText().startsWith("rd"))
+        {   String text = sh.getCommand(textField1.getText());
+            textArea1.appendText(">>"+textField1.getText()+"\n");
+            textField1.clear();
+            if(text==null || text.equals(""))
+            {
+                textArea1.appendText("no data\n");
+            }
+            else ta.appendText(text + "\n");
+        }else{
+            String text = textField1.getText().substring(6);
+
+            File dir=new File(ShellCommands.getCurrentDir()+'\\'+text);
+            if(dir.exists()) {
+                ta.appendText("are you sure you want to remove " + text + "[Y/N]\n");
+                textField1.clear();
+                awaitingConfirmation = true;
+                directory = text;
+            }else {
+                ta.appendText("directory does not exist.\n");
+                textField1.clear();
+            }
+
+
+        }
+
+    }
+
+    private void handleConfirmation(TextField textField1,TextArea textArea1)
+    {
+        if(textField1.getText().equalsIgnoreCase("y"))
+        {
+            ta.appendText(">>y\n");
+            textField1.clear();
+            String s = sh.getCommand("rmdir " + directory);
+            ta.appendText(">>"+s+"\n");
+        }else if(textField1.getText().equalsIgnoreCase("n"))
+        {
+            ta.appendText(">>y\n");
+            textField1.clear();
+            ta.appendText(">>canceling deleting file\n");
+        }else{
+            textField1.clear();
+            ta.appendText(">>incorect input!\n");
+        }
+
+        directory = "";
+        awaitingConfirmation = false;
+    }
+
     @FXML
     public void initialize() {
         ta=textArea;
-        textField.setOnAction(e -> {
-            String text = sh.getCommand(textField.getText());
-            textArea.appendText(">>"+textField.getText()+"\n");
-            textField.clear();
-            if(text==null || text.equals(""))
-            {
-                textArea.appendText("no data\n");
-            }
-            else ta.appendText(text + "\n");
 
+        textField.setOnAction(e -> {
+            if (!awaitingConfirmation) {
+                handleCommand(textField, textArea);
+            } else {
+                handleConfirmation(textField, textArea);
+            }
         });
+
+
+
     }
 
     public static void updateTa(String s)

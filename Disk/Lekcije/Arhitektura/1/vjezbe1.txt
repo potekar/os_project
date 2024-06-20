@@ -1,0 +1,6 @@
+binarni
+takt
+funkcija
+DNF
+KNF
+oktalni

@@ -1,0 +1,6 @@
+podaci
+informacije
+procesor
+disk
+registri
+RAM

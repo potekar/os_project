@@ -1,0 +1,10 @@
+backtracking
+dinamicko
+programiranje
+bruteForce
+hanojskeKule
+8Krajljica
+memoizacija
+rekurzija
+fibonaci
+katalanovi
