@@ -1,6 +1,6 @@
 package assembler;
 
-import memory.ProcessPetko;
+import memory.Process;
 
 import java.util.Stack;
 
@@ -9,7 +9,7 @@ public class Operations {
 
     private  Stack <String> stack;
 
-    public Operations(ProcessPetko p)
+    public Operations(Process p)
     {
         this.stack = p.stack;
     }

@@ -1,11 +1,9 @@
 package system;
 
 import GUI.Controller;
-import javafx.fxml.FXML;
-import javafx.scene.control.TextArea;
 import memory.*;
+import memory.Process;
 
-import java.io.Console;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,7 +23,7 @@ public class ShellCommands {
     }
 
     //public static HashSet<ProcessPetko> threadSet = new HashSet<>();
-    public static ArrayList<ProcessPetko> threadSet = new ArrayList<>();
+    public static ArrayList<Process> threadSet = new ArrayList<>();
     public static void setCurrentDir(String currentDir) {
         ShellCommands.currentDir = currentDir;
     }
@@ -45,6 +43,7 @@ public class ShellCommands {
                             File parrent = new File(new File(currentDir).getParent());
                             currentDir = parrent.getAbsolutePath().toString();
                             System.setProperty("user.dir", currentDir);
+
                             trenutniDirNaziv = currentDir.substring(currentDir.lastIndexOf("\\")+1);
                             return currentDir;
 
@@ -75,7 +74,7 @@ public class ShellCommands {
 
                 case "ps":
                     sb.append("Processes:\n");
-                    for (ProcessPetko t : threadSet) {
+                    for (Process t : threadSet) {
                         sb.append("Process name:" + t.getProcessName() + "; CurrentInstruciton: " + t.currentInstruction +
                                 "; Number of executed instructions:" + t.numExecutedInstructions + "; Usage of RAM:" + t.getNumOfPages() + " frames"
                         +";  STANJE: " + t.stanje + "\n");
@@ -93,7 +92,7 @@ public class ShellCommands {
                     int id = 0;
 
                     if (!threadSet.isEmpty()) {
-                        for (ProcessPetko p : threadSet) {
+                        for (Process p : threadSet) {
                             if(command[1].contains("/"))
                             {
                                 int index = command[1].lastIndexOf("/");
@@ -123,28 +122,35 @@ public class ShellCommands {
                         path = currentDir + "\\" + command[1];
                     }
 
+                    File dir=new File(path);
+                    if(dir.exists()) {
+                        Process t = new Process(path, id);
+                        if (command[0].equalsIgnoreCase("run&save")) {
+                            t.setSave(true);
+                            t.setSaveFileName(command[2]);
+                        }
 
-                    ProcessPetko t = new ProcessPetko(path, id);
-                    if(command[0].equalsIgnoreCase("run&save")) {
-                        t.setSave(true);
-                        t.setSaveFileName(command[2]);
-                    }
 
+                        threadSet.add(t);
+                        ProcessScheduler.red.add(t);
 
-                    threadSet.add(t);
-                    ProcessScheduler.red.add(t);
-
-                    if (scheduler == null) {
-                        scheduler = new ProcessScheduler();
-                        scheduler.start();
-                    }
+                        if (scheduler == null) {
+                            scheduler = new ProcessScheduler();
+                            scheduler.start();
+                        }
 
                     /*if(threadSet.size() == 1)
                     {
                         ProcessScheduler ps = new ProcessScheduler();
                         ps.start();
                     }*/
-                    return "executed";
+                        return "executed";
+                    }
+                    else{
+                        return "path does not exist";
+                    }
+
+
 
                 case "shutdown":
                     exitProcedure();
@@ -235,12 +241,16 @@ public class ShellCommands {
                     //lista fajlova
                     return (Disc.listaFile.toString());
 
+                case "clear","cls":
+                    Controller.clear();
+                    return "";
+
 
                 default:
                     return ("'" + command[0] + "' is not recognized as an internal or external command");
 
             }
-            return null;
+            return "";
     }
 
     private String listDirectoryTree(File dir,String indent) {
@@ -268,6 +278,7 @@ public class ShellCommands {
 
     private String listDirectory(String dirPath) {
         File dir = new File(dirPath);
+
         File[] firstLevelFiles = dir.listFiles();
         if (firstLevelFiles != null && firstLevelFiles.length > 0) {
             for (File aFile : firstLevelFiles) {
@@ -284,7 +295,9 @@ public class ShellCommands {
 
     private static boolean changeDirectory(String dirName) {
         trenutniDirNaziv = dirName;
+
         File dir=new File(currentDir);
+
         File[] firstLevelFiles=dir.listFiles();
         if (firstLevelFiles != null && firstLevelFiles.length > 0) {
             for (File aFile : firstLevelFiles) {
@@ -327,6 +340,7 @@ public class ShellCommands {
     {
                 File dir=new File(currentDir+'\\'+dirName);
                 Iterator<FileInMemory> it = Disc.listaFile.iterator();
+
                 while(it.hasNext())
                 {
 
@@ -334,7 +348,8 @@ public class ShellCommands {
                     if(f.getName().equals(dirName))
                     {
                         if(f.getContent().size()>0)
-                        {      Iterator<Block> it1 = Disc.zauzetProstor.iterator();
+
+                        {     Iterator<Block> it1 = Disc.zauzetProstor.iterator();
                             while(it1.hasNext())
                             {   Block b = it1.next();
                                 if(b.getFileName().equals(dirName)) {
@@ -363,6 +378,7 @@ public class ShellCommands {
                                                 novi.setSledbenik(x);
                                                 x.setPrethodnik(novi);
                                                 Disc.slobodanProstor = novi;
+
                                             } else {
                                                 Pointer novi = new Pointer(b);
                                                 novi.setSledbenik(x);

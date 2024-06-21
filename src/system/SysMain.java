@@ -36,17 +36,20 @@ public class SysMain extends Application {
                         List<String> content = Files.readAllLines(p1);
                         FileInMemory file1 = new FileInMemory(p1.getFileName().toString(),content.size(),file);
                         file1.setContent(new ArrayList<>(content));
+
                         Disc.listaFile.add(file1);
                         file.getPodfajlovi().add(file1);
 
                         double dummy = content.size()*1.0/Block.size;
                         int br  = (int) Math.ceil(dummy);
                         int index = 0;
+
                         for(int i=0;i<br;i++)
                         {
                             Block b = Disc.slobodanProstor.getBlock();
                             b.setFileName(file1.getName());
-                            for(int y = 0;y<4;y++)
+
+                            for(int y = 0;y<Block.size;y++)
                             {
                                 if(index <content.size()) {
                                     b.getContent().add(content.get(index));

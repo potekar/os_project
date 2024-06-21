@@ -8,11 +8,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 
 public class DMAConntroler {
 
-    public static void fromDiskToRam(ProcessPetko procces)
+    public static void fromDiskToRam(Process procces)
     {
         try {
             procces.setInstructions((ArrayList<String>) Files.readAllLines(Paths.get(procces.getFilePath())));
@@ -50,7 +49,7 @@ public class DMAConntroler {
     }
 
 
-    public static void fromRamToDisk(ProcessPetko p)
+    public static void fromRamToDisk(Process p)
     {   try {
         File newFile = new File(ShellCommands.getCurrentDir() + "\\" + p.getSaveFileName() + ".txt");
         if (!newFile.exists()) {

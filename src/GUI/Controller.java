@@ -35,17 +35,15 @@ public class Controller{
         {   String text = sh.getCommand(textField1.getText());
             textArea1.appendText(">>"+textField1.getText()+"\n");
             textField1.clear();
-            if(text==null || text.equals(""))
-            {
-                textArea1.appendText("no data\n");
-            }
-            else ta.appendText(text + "\n");
+
+
+             ta.appendText(text + "\n");
         }else{
             String text = textField1.getText().substring(6);
 
             File dir=new File(ShellCommands.getCurrentDir()+'\\'+text);
             if(dir.exists()) {
-                ta.appendText("are you sure you want to remove " + text + "[Y/N]\n");
+                ta.appendText(">>are you sure you want to remove " + text + "[Y/N]\n");
                 textField1.clear();
                 awaitingConfirmation = true;
                 directory = text;
@@ -100,5 +98,9 @@ public class Controller{
     public static void updateTa(String s)
     {
         ta.appendText(s+"\n");
+    }
+
+    public static void clear(){
+        ta.clear();
     }
 }

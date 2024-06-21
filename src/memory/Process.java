@@ -5,17 +5,12 @@ import system.ProcessScheduler;
 import system.ProcessState;
 import system.ShellCommands;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-public class ProcessPetko extends Thread{
+public class Process extends Thread{
 
     private Map<Integer,Integer> PageTable = new HashMap<>();
 
@@ -47,10 +42,12 @@ public class ProcessPetko extends Thread{
     private int idProces;
     private final Object lock = new Object();
 
-    public ProcessPetko(String filePath,int id){
+    public Process(String filePath, int id){
         this.processName = filePath;
         int x = -1;
+
         this.idProces = id;
+
         if(filePath.contains("/"))
          x = filePath.lastIndexOf("/");
         else if(filePath.contains("\\"))

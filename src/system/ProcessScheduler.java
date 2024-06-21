@@ -1,6 +1,6 @@
 package system;
 
-import memory.ProcessPetko;
+import memory.Process;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -9,7 +9,7 @@ public class ProcessScheduler extends Thread{
 
     //public static Queue<ProcessPetko> red = new LinkedList<>();
 
-   public static BlockingQueue<ProcessPetko> red = new LinkedBlockingQueue<>();
+   public static BlockingQueue<Process> red = new LinkedBlockingQueue<>();
 
 
     public static long quantum = 4000;
@@ -23,7 +23,7 @@ public class ProcessScheduler extends Thread{
                 try{
 
                     //ProcessPetko p = red.poll();
-                    ProcessPetko p = red.take();
+                    Process p = red.take();
                     if(p.stanje == ProcessState.BLOCKED)
                     {
                         red.put(p);

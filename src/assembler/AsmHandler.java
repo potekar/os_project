@@ -1,25 +1,20 @@
 package assembler;
 
 import GUI.Controller;
-import javafx.application.Platform;
-import javafx.scene.control.TextArea;
 import memory.Page;
-import memory.ProcessPetko;
+import memory.Process;
 import memory.Ram;
 import system.ProcessState;
 import system.ShellCommands;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class AsmHandler {
-    Controller c=new Controller();
+
     //private TextArea ta=c.getTextArea();
-    public void instructionReader(ProcessPetko proces)
+    public void instructionReader(Process proces)
     {
         List<String> asmFileLines = new ArrayList<>();
         Operations operations = new Operations(proces);
@@ -48,7 +43,6 @@ public class AsmHandler {
             proces.waitForResume();
 
             long x = r.nextInt(4001) + 2000 + proces.getRemainingSleepTime();
-            long y = proces.getRemainingSleepTime();
             proces.setRemainingSleepTime(0);
 
             if (x < quantum) {
@@ -70,6 +64,7 @@ public class AsmHandler {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
+
                 proces.quantumCheck = 0;
                 instructionRunner(asmFileLines.get(i), proces, operations);
                 proces.numExecutedInstructions += 1;
@@ -95,7 +90,7 @@ public class AsmHandler {
         proces.stanje = ProcessState.DONE;
     }
 
-    private void instructionRunner(String instruction,ProcessPetko proces,Operations operations)
+    private void instructionRunner(String instruction, Process proces, Operations operations)
     {
         proces.currentInstruction = instruction;
         String[] arr=instruction.split(" ");
