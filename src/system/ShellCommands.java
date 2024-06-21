@@ -125,7 +125,7 @@ public class ShellCommands {
                     File dir=new File(path);
                     if(dir.exists()) {
                         Process t = new Process(path, id);
-                        if (command[0].equalsIgnoreCase("run&save")) {
+                        if (command.length != 3 &&  command[0].equalsIgnoreCase("run&save")) {
                             t.setSave(true);
                             t.setSaveFileName(command[2]);
                         }
@@ -455,6 +455,12 @@ public class ShellCommands {
                         "RUN <process name in current direcory>\n" +
                         "RUN <relative/absolute process path>");
 
+            case "run&save":
+                return("Starts a process and saves it in a txt file.\n" +
+                        "RUN <process name in current direcory>\n" +
+                        "RUN <relative/absolute process path>"+
+                        "RUN&SAVE <process name> <saveFileName>");
+
             case "help":
                 return ("Provides help information for commands.\n" +
                         "\n" +
@@ -487,7 +493,8 @@ public class ShellCommands {
                 "LS             Displays a list of files and subdirectories in a directory."+
                 "FS             Returns free space\n" +
                 "FL             Returns file list\n" +
-                "US             Returns used space\n");
+                "US             Returns used space\n"+
+                "RUN&SAVE       Start a process and saves the result in a txt file");
     }
 
     public static String getOutput(String output)
